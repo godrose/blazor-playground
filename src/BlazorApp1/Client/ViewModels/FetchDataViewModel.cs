@@ -26,14 +26,16 @@ namespace BlazorApp1.Client.ViewModels
 
         private WrappingCollection _weatherForecasts;
         public IEnumerable WeatherForecasts => _weatherForecasts ??= CreateWeatherForecasts();
-        IEnumerable<WeatherForecast> IFetchDataViewModel.TypedWeatherForecasts => WeatherForecasts.OfType<WeatherForecast>();
+
+        IEnumerable<WeatherForecast> IFetchDataViewModel.TypedWeatherForecasts =>
+            WeatherForecasts.OfType<WeatherForecast>();
 
         private WrappingCollection CreateWeatherForecasts()
         {
-            var wc = new WrappingCollection(
-                )
-                {
-            FactoryMethod = r => r};
+            var wc = new WrappingCollection
+            {
+                FactoryMethod = r => r
+            };
             wc.AddSource(_fetchDataService.WeatherForecasts);
             return wc;
         }
