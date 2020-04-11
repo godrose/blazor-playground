@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlazorApp1.Client.Models;
 using BlazorApp1.Shared;
+using LogoFX.Core;
 
 namespace BlazorApp1.Client.ViewModels
 {
     public interface IFetchDataViewModel
     {
-        WeatherForecast[] WeatherForecasts { get; set; }
+        IEnumerable<WeatherForecast> WeatherForecasts { get; }
         Task RetrieveForecastsAsync();
     }
 
@@ -21,11 +23,14 @@ namespace BlazorApp1.Client.ViewModels
             _fetchDataService = fetchDataService;
         }
 
-        public WeatherForecast[] WeatherForecasts { get; set; }
+        private readonly RangeObservableCollection<WeatherForecast> _weatherForecasts = new RangeObservableCollection<WeatherForecast>();
+        public IEnumerable<WeatherForecast> WeatherForecasts => _weatherForecasts;
 
         public async Task RetrieveForecastsAsync()
         {
-            WeatherForecasts = await _fetchDataService.RetrieveForecastsAsync();
+            var weatherForecasts = await _fetchDataService.RetrieveForecastsAsync();
+            _weatherForecasts.Clear();
+            _weatherForecasts.AddRange(weatherForecasts);
             Console.WriteLine("FetchDataViewModel Forecasts Retrieved");
         }
     }
