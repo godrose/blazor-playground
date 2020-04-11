@@ -1,13 +1,16 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorApp1.Shared;
+using LogoFX.Core;
 using Microsoft.AspNetCore.Components;
 
 namespace BlazorApp1.Client.Models
 {
     public interface IFetchDataService
     {
-        Task<WeatherForecast[]> RetrieveForecastsAsync();
+        IEnumerable<WeatherForecast> WeatherForecasts { get; }
+        Task RetrieveForecastsAsync();
     }
 
     public class FetchDataService : IFetchDataService
@@ -18,9 +21,15 @@ namespace BlazorApp1.Client.Models
         {
             _http = http;
         }
-        public async Task<WeatherForecast[]> RetrieveForecastsAsync()
+
+        private readonly RangeObservableCollection<WeatherForecast> _weatherForecasts = new RangeObservableCollection<WeatherForecast>();
+        public IEnumerable<WeatherForecast> WeatherForecasts => _weatherForecasts;
+
+        public async Task RetrieveForecastsAsync()
         {
-            return await _http.GetJsonAsync<WeatherForecast[]>("WeatherForecast");
+            var weatherForecasts = await _http.GetJsonAsync<WeatherForecast[]>("WeatherForecast");
+            _weatherForecasts.Clear();
+            _weatherForecasts.AddRange(weatherForecasts);
         }
     }
 }

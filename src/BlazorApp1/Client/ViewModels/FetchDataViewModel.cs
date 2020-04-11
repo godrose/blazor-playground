@@ -1,15 +1,17 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BlazorApp1.Client.Models;
 using BlazorApp1.Shared;
-using LogoFX.Core;
+using LogoFX.Client.Mvvm.ViewModel;
 
 namespace BlazorApp1.Client.ViewModels
 {
     public interface IFetchDataViewModel
     {
-        IEnumerable<WeatherForecast> WeatherForecasts { get; }
+        IEnumerable WeatherForecasts { get; }
+        IEnumerable<WeatherForecast> TypedWeatherForecasts { get; }
         Task RetrieveForecastsAsync();
     }
 
@@ -19,19 +21,26 @@ namespace BlazorApp1.Client.ViewModels
 
         public FetchDataViewModel(IFetchDataService fetchDataService)
         {
-            Console.WriteLine("FetchDataViewModel Constructor Executing");
             _fetchDataService = fetchDataService;
         }
 
-        private readonly RangeObservableCollection<WeatherForecast> _weatherForecasts = new RangeObservableCollection<WeatherForecast>();
-        public IEnumerable<WeatherForecast> WeatherForecasts => _weatherForecasts;
+        private WrappingCollection _weatherForecasts;
+        public IEnumerable WeatherForecasts => _weatherForecasts ??= CreateWeatherForecasts();
+        IEnumerable<WeatherForecast> IFetchDataViewModel.TypedWeatherForecasts => WeatherForecasts.OfType<WeatherForecast>();
+
+        private WrappingCollection CreateWeatherForecasts()
+        {
+            var wc = new WrappingCollection(
+                )
+                {
+            FactoryMethod = r => r};
+            wc.AddSource(_fetchDataService.WeatherForecasts);
+            return wc;
+        }
 
         public async Task RetrieveForecastsAsync()
         {
-            var weatherForecasts = await _fetchDataService.RetrieveForecastsAsync();
-            _weatherForecasts.Clear();
-            _weatherForecasts.AddRange(weatherForecasts);
-            Console.WriteLine("FetchDataViewModel Forecasts Retrieved");
+            await _fetchDataService.RetrieveForecastsAsync();
         }
     }
 }

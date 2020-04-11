@@ -22,7 +22,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in _fetchDataViewModel.WeatherForecasts)
+        @foreach (var forecast in _fetchDataViewModel.TypedWeatherForecasts)
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
